@@ -2,12 +2,18 @@ provider "aws" {
   region = "us-east-2"
 }
 
+variable "port_number" {
+  description	= "Port number used for serving the web page"
+  type 		= number
+  default	= 8080
+}
+
 resource "aws_security_group" "instance" {
   name = "terraform-example-instance"
   
   ingress {
-    from_port 	= 8080
-    to_port  	= 8080
+    from_port 	= var.port_number
+    to_port  	= var.port_number
     protocol	= "tcp"
     cidr_blocks	= ["0.0.0.0/0"]
   }
@@ -20,7 +26,7 @@ resource "aws_instance" "kittendancer" {
   user_data = 	<<-EOF
 		#!/bin/bash
 		echo "Hello, World. You smell." > index.html
-		nohup busybox httpd -f -p 8080 &
+		nohup busybox httpd -f -p ${var.port_number} &
 		EOF
 
   user_data_replace_on_change = true
